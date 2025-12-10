@@ -3,50 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFC読み取り</title>
+    <title>読み取り</title>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; }
+        #status { font-size: 18px; margin-bottom: 20px; font-weight: bold;}
+        #error-msg { color: red; font-size: 12px; margin-top: 20px; word-break: break-all;}
+        .btn {
+            display: none; /* 最初は隠す */
+            background-color: #06C755; color: white; 
+            padding: 15px 30px; text-decoration: none; 
+            border-radius: 10px; font-weight: bold; font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-    <div style="text-align: center; margin-top: 50px;">
-        <h1>読み取り中...</h1>
-        <p>画面を閉じないでください</p>
-    </div>
+    <div id="status">読み取り中...</div>
+    
+    <a id="manual-btn" class="btn" href="#">LINEを開いて送信する</a>
+
+    <div id="error-msg"></div>
 
     <script>
-        // LIFFの初期化
-        liff.init({
-            liffId: "2008670292-XvjAwLbQ" // ここを書き換える（例: "1657000000-xxxxxxxxx"）
-        })
+        // ▼▼▼ 設定エリア ▼▼▼
+        const MY_LIFF_ID = "2008670292-XvjAwLbQ";  // 例: "1657xxxx-xxxxx"
+        const MY_BOT_ID  = "@021lgzbi";   // 例: "@123abcde" (公式LINEのID。@を忘れずに！)
+        const MESSAGE    = "NFCタグを読み取りました！"; // 送信するメッセージ
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+        const statusDiv = document.getElementById('status');
+        const errorDiv = document.getElementById('error-msg');
+        const manualBtn = document.getElementById('manual-btn');
+
+        // 手動ボタンのリンク先を設定
+        // https://line.me/R/oaMessage/{bot_id}/?{message}
+        manualBtn.href = `https://line.me/R/oaMessage/${MY_BOT_ID}/?${encodeURIComponent(MESSAGE)}`;
+
+        liff.init({ liffId: MY_LIFF_ID })
         .then(() => {
-            // ログインしていない場合はログイン画面へ
             if (!liff.isLoggedIn()) {
                 liff.login();
-            } else {
-                // メッセージを送信する処理
-                sendMessage();
+                return;
             }
-        })
-        .catch((err) => {
-            console.log(err);
-            alert("エラーが発生しました: " + err);
-        });
 
-        function sendMessage() {
-            // ユーザーの代わりにメッセージを送信
-            liff.sendMessages([
-                {
-                    type: 'text',
-                    text: 'NFCタグを読み取りました！' // ここが送信されるメッセージ
-                }
-            ])
+            // コンテキスト（どの画面から開かれたか）を確認
+            const context = liff.getContext();
+            
+            // 自動送信を試みる
+            liff.sendMessages([{ type: 'text', text: MESSAGE }])
             .then(() => {
-                // 送信成功したらウィンドウを閉じる
-                liff.closeWindow();
+                statusDiv.innerText = "送信完了！閉じています...";
+                setTimeout(() => { liff.closeWindow(); }, 1000);
             })
             .catch((err) => {
-                alert('メッセージ送信に失敗しました');
+                // 自動送信に失敗した場合（ここに来ることが多いです）
+                console.error(err);
+                statusDiv.innerText = "自動送信できませんでした。\n下のボタンを押してください。";
+                errorDiv.innerText = "Error: " + err.code + " / " + err.message; // エラー内容を表示
+                
+                // 手動ボタンを表示
+                manualBtn.style.display = "inline-block";
             });
-        }
+        })
+        .catch((err) => {
+            statusDiv.innerText = "初期化エラー";
+            errorDiv.innerText = err;
+        });
     </script>
 </body>
 </html>
