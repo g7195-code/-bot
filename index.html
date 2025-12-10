@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFC読み取り</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+    <div style="text-align: center; margin-top: 50px;">
+        <h1>読み取り中...</h1>
+        <p>画面を閉じないでください</p>
+    </div>
+
+    <script>
+        // LIFFの初期化
+        liff.init({
+            liffId: "2008670292-XvjAwLbQ" // ここを書き換える（例: "1657000000-xxxxxxxxx"）
+        })
+        .then(() => {
+            // ログインしていない場合はログイン画面へ
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                // メッセージを送信する処理
+                sendMessage();
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            alert("エラーが発生しました: " + err);
+        });
+
+        function sendMessage() {
+            // ユーザーの代わりにメッセージを送信
+            liff.sendMessages([
+                {
+                    type: 'text',
+                    text: 'NFCタグを読み取りました！' // ここが送信されるメッセージ
+                }
+            ])
+            .then(() => {
+                // 送信成功したらウィンドウを閉じる
+                liff.closeWindow();
+            })
+            .catch((err) => {
+                alert('メッセージ送信に失敗しました');
+            });
+        }
+    </script>
+</body>
+</html>
