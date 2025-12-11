@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>返却処理中</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background-color: #e0f7fa; } /* 返却は背景を水色にしてみる */
+        .loader { font-size: 18px; margin-bottom: 20px; font-weight: bold; color: #333; }
+        .btn { display: inline-block; background-color: #00bcd4; color: white; padding: 15px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="loader">LINEを起動して返却します...</div>
+    <a id="manual-btn" class="btn" href="#">返却ボタン</a>
+
+    <script>
+        // ▼▼▼ ここをBotのIDに書き換える ▼▼▼
+        const MY_BOT_ID = "@898tmutu"; 
+        
+        // ▼▼▼ ここが「返却」用の言葉になります ▼▼▼
+        const MESSAGE = "鍵を返却しました"; 
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+        const targetUrl = `https://line.me/R/oaMessage/${MY_BOT_ID}/?${encodeURIComponent(MESSAGE)}`;
+        document.getElementById('manual-btn').href = targetUrl;
+        window.location.href = targetUrl;
+    </script>
+</body>
+</html>
